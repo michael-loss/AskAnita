@@ -349,7 +349,13 @@ def answer_query_nova_kb(user_input, chat_handler):
     context = get_context(bedrock_agent_runtime_client, model_id, kb_id, userQuery)
 
     prompt_data = f"""
-        Assistant: You are an AI assistant designed to provide factual and accurate answers to user questions based on the Context provided.
+        Assistant: You are an AI assistant designed to help members of the Emergency Nurses Association (ENA) find accurate and factual information about ENA's {mode}.  If the required information is not available in the Context, respond explicitly with "I don't know."
+
+        Instructions:
+        1. **Language Consistency:**
+            - The user's question is in {detected_language_name}. Respond in {detected_language_name}.
+            - Do not use chat history to determine the language.
+            - Ensure the response maintains clarity, correctness, and professionalism in the language of the Question.
 
         Conversation History (for reference to clarify intent, NOT as a source for answers):
         {chat_history}
@@ -369,7 +375,8 @@ def answer_query_nova_kb(user_input, chat_handler):
         4. Be concise and professional in your responses.
         5. Include specific details from the Context in your answer when applicable.
         6. If the user references a previous answer from the Conversation History, verify its accuracy against the Context before including it in your response.
-
+        7. Please mention the sources of where the answers came from by referring to specific ENA documents, policy briefs, and webpage URLs. URLs may be derived from information outside of the context. In the case of URLs create links directly to the sources on ENA's webite whenever possible..
+        
         Example Behavior:
         - If the user asks, "Summarize it in 3 bullet points," ensure your summary comes exclusively from the Context provided.
         - If the user asks a follow-up question like, "Who is the author?" and it’s unclear which document they mean, use the Conversation History to infer the user's intent (e.g., "Are you referring to the document titled 'Access to Quality Healthcare'?").
@@ -382,7 +389,7 @@ def answer_query_nova_kb(user_input, chat_handler):
     chat_handler.add_message("human", userQuery)
     chat_handler.add_message("ai", output_text)
    
-    output_text = f"{output_text}\n\nModel used: {model_id}\n\nbot type: {mode}\n\nchat history: {chat_history}\n\ndone..."
+    output_text = f"{output_text}\n\nModel used: {model_id}\n\nbot type: {mode}\n\n"
     return output_text
 
 import streamlit as st
@@ -406,15 +413,35 @@ def main():
         st.image("AnitaMDorr.jpg", width=300, use_container_width=True)  # Increased width and using full column width
         
         # Add title below the image
-        st.title("Hello! I'm ANITA")
+        st.title("Hello! I'm ANITA - v2")
 
         # Add radio button group for "ENA Focus"
+        # enafocus = st.radio(
+        #     "ENA Focus",
+        #     #("Position Statements", "Education"),
+        #     ("Position Statements", "HR"),
+        #     index=0,  # Default to "Position Statements"
+        #     help="Select the ENA focus area"
+        # )
+
+        # First, store the radio button in a variable using session_state
+        if 'previous_enafocus' not in st.session_state:
+            st.session_state.previous_enafocus = None
+
+        def on_enafocus_change():
+            st.session_state.chat_handler = ChatHandler()
+            st.cache_data.clear()
+            st.cache_resource.clear()
+
+        # Modify your radio button to include the callback
         enafocus = st.radio(
             "ENA Focus",
             #("Position Statements", "Education"),
             ("Position Statements", "HR"),
             index=0,  # Default to "Position Statements"
-            help="Select the ENA focus area"
+            help="Select the ENA focus area",
+            key="enafocus",
+            on_change=on_enafocus_change
         )
 
         # Add radio button group for "LLM Model"
