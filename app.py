@@ -349,13 +349,9 @@ def answer_query_nova_kb(user_input, chat_handler):
     context = get_context(bedrock_agent_runtime_client, model_id, kb_id, userQuery)
 
     prompt_data = f"""
-        Assistant: You are an AI assistant designed to help members of the Emergency Nurses Association (ENA) find accurate and factual information about ENA's {mode}.  If the required information is not available in the Context, respond explicitly with "I don't know."
-
-        Instructions:
-        1. **Language Consistency:**
-            - The user's question is in {detected_language_name}. Respond in {detected_language_name}.
-            - Do not use chat history to determine the language.
-            - Ensure the response maintains clarity, correctness, and professionalism in the language of the Question.
+        Assistant: You are an AI assistant designed to provide factual and accurate answers to user questions based on the Context provided.
+        Language Consistency: The user's question is in {detected_language_name}. Respond in {detected_language_name}.
+        
 
         Conversation History (for reference to clarify intent, NOT as a source for answers):
         {chat_history}
@@ -375,7 +371,8 @@ def answer_query_nova_kb(user_input, chat_handler):
         4. Be concise and professional in your responses.
         5. Include specific details from the Context in your answer when applicable.
         6. If the user references a previous answer from the Conversation History, verify its accuracy against the Context before including it in your response.
-        7. Please mention the sources of where the answers came from by referring to specific ENA documents, policy briefs, and webpage URLs. URLs may be derived from information outside of the context. In the case of URLs create links directly to the sources on ENA's webite whenever possible..
+        7. Please mention the sources by referring to specific ENA documents, policy briefs, and webpage URLs. 
+        8. Sources URLs may be derived from information outside of the context. In the case of URLs create links directly to the sources on ENA's webite whenever possible.
         
         Example Behavior:
         - If the user asks, "Summarize it in 3 bullet points," ensure your summary comes exclusively from the Context provided.
@@ -383,6 +380,7 @@ def answer_query_nova_kb(user_input, chat_handler):
 
         Answer:
         """
+
     output_text = get_response(bedrock, model_id, prompt_data, region='us-east-1')
 
     # Save interaction to chat memory
