@@ -1,0 +1,24 @@
+# System files
+.DS_Store
+
+# Environment and secrets
+.env
+.streamlit/
+.venv/
+venv/
+
+# IDE
+.vscode/
+.idea/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# History
+.history/
+
+# Git
+.git/
